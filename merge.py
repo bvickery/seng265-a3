@@ -10,8 +10,19 @@ def merge_tables(file_list):
 	key_value = file_list[1]
 	tables = file_list[2:]
 	#print(tables)
+	columns = []
 	for table in tables:
 		with open(table) as t:
+			column_names = t.readline().split(',')
+			for value in column_names:
+				
+			print(column_names)
+			if key_value not in column_names:
+				print("Error: File %s No column called '%s'"%(table,key_value))
+				exit()
+			for line in t:
+				for token in line.split(','):
+					continue
 			#we now need to iterate through the first row which has the column names and make sure that the key_value is actually in the table
 			#then once it is established that it is in there need to move on to the remaining rows and start to read in their first values seperated by the commas
 	return
