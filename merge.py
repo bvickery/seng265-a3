@@ -9,7 +9,7 @@ key_value = []
 
 #problem there is no guarentee where exactly the key column will be in a given csv file so somehow we are going to have to find what position it is at
 #in both the lists, i think using a for loop that looks through till it finds the key column and using a counter to find the index
-def merge_tables(file_list, columns):
+def merge_tables(file_list, columns, D_M = {}):
 
 	#this is base case for recusion
 	if len(file_list) == 1:
@@ -26,7 +26,7 @@ def merge_tables(file_list, columns):
 			col1 = M.readline().split(',')
 			col1 = [line.strip() for line in col1]
 			if any(name in col1 for name in columns):
-				print("file contains a duplicate column name") #need to print name as well as file
+				print("file: %s contains a duplicate column name: %s"%(M,name)) #need to print name as well as file
 				exit()
 			for value in col1:
 				columns.add(value)
@@ -46,7 +46,7 @@ def merge_tables(file_list, columns):
 					exit()
 				temp = [read.strip() for read in temp]
 				L_M.append(temp)
-			#print(L_M)
+			print(L_M)
 #file 2
 			try:
 				with open(tables[1]) as T:
@@ -54,7 +54,7 @@ def merge_tables(file_list, columns):
 					col2 = T.readline().split(',')
 					col2 = [line.strip() for line in col2]
 					if any(name in col2 for name in columns):
-						print("file contains a duplicate column name") #need to print name as well as file
+						print("file: %s contains a duplicate column name: %s"%(T,name)) #need to print name as well as file
 						exit()
 					for value in col2:
 						columns.add(value)
@@ -75,7 +75,7 @@ def merge_tables(file_list, columns):
 							exit()
 						temp = [read.strip() for read in temp]
 						L_T.append(temp)
-					#print(L_T)
+					print(L_T)
 #at this point have all the info from the files into 2 lists for the column names (keys) and 2 lists for all the rest of the info
 			except EnvironmentError:
 				print("couldnt open file")
@@ -132,7 +132,7 @@ def merge_tables(file_list, columns):
 	file_list.pop(1)
 	#print(file_list)
 	
-	file_list = merge_tables(file_list,columns)
+	file_list = merge_tables(file_list,columns,D_M)
 	#can just move the key column to the front here after all the recursion is done
 	return file_list
 	
