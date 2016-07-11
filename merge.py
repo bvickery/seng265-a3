@@ -1,22 +1,23 @@
 import sys
 
-
-
-#problem there is no guarentee where exactly the key column will be in a given csv file so somehow we are going to have to find what position it is at
-#in both the lists, i think using a for loop that looks through till it finds the key column and using a counter to find the index
 def merge_tables(file_list, key_value):
-	D_M = {}
-	columns = set()
-	#print(tables)
-	#we now need to iterate through the first row which has the column names and make sure that the key_value is actually in the table
-	#then once it is established that it is in there need to move on to the remaining rows and start to read in their first values seperated by the commas
-	for file in file_list:
 	
+	L = []
+	columns = set()
+
+	for file in file_list:
+#this try and except might be fine but will just have to add the finding of the key_column index into here, then use bills table_to_dict and join grades program tp finish solving this, because it looks like if i try to continue doing this the way i currently am will basically have to redo a lot of stuff because it was lost when making it into a dict of lists
 		try:
 			
 			with open(file) as M:
-				
-				col1 = M.readline().split(',')
+			
+				for line in M:
+					if len(line.strip()) == 0:
+						continue
+					else:
+						col1 = line.split(',')
+						break
+
 				col1 = [line.strip() for line in col1]
 				name = []
 				if any(name in col1 for name in columns):
@@ -28,55 +29,85 @@ def merge_tables(file_list, key_value):
 				try:
 					columns.remove(key_value)
 				except KeyError:
-					print("file does not contain the key column")
+					print("file: %s does not contain the key column: %s"%(file,key_value))
 					exit()
 					
-				L_M = []
+				L_M = [col1]
 				length = len(col1)
 				for read in M:
-					temp = read.split(',')
-					if len(temp) != length:
-						print("incorrect number of columns in M")
-						exit()
-					temp = [read.strip() for read in temp]
-					L_M.append(temp)
-				print(L_M)
-				
+					if len(read.strip()) == 0:
+						continue
+					else:
+						temp = read.split(',')
+						if len(temp) != length:
+							print("incorrect number of columns in: %"%(file))
+							exit()
+						temp = [read.strip() for read in temp]
+						L_M.append(temp)
+						
 		except EnvironmentError:
-			print("couldnt open file dun goof")
+			print("couldnt open file: %s"%(file))
 			exit()
-#dont know if i actually  need this anymore. Actually i dont think i do at all since everything is just already in the dict in under the proper column name, all i should have to do now is print out the file and to make sure that empty cells are filled with blank spaces and to handle the remaining error cases
+
 		i = 0
 		for element in col1:
 			if element == key_value:
 				break
 			i = i + 1
 		
-		tups = zip(*L_M)
-		del L_M[:]
-		for t in tups:
-			L_M.append(t)
+		L.append(table_to_dict(L_M,i))
+
+	for x in L:
+
+		dict1 = L[0]
 		
-		D_T = dict(zip(col1, L_M))
-		if key_value in D_M:
-			D_T[key_value] += D_M[key_value]
+		dict2 = L[1]
+		columns1 = len(dict1[key_value])
+		columns2 = len(dict2[key_value])
+		L.pop(1)
+		L.pop(0)
+
+		all_student_ids = set()
+		for student_id in dict1:
+			all_student_ids.add(student_id)
+		for student_id in dict2:
+			all_student_ids.add(student_id)
+
+		joined_table = []
+		for student_id in all_student_ids:
+			if student_id not in dict1:
+
+				entry1 = ['']*columns1
+	
+			else:
+				entry1 = dict1[student_id]
+
+			if student_id not in dict2:
+
+				entry2 = ['']*columns2
+	
+			else:
+				entry2 = dict2[student_id]
+
+			result_row = [student_id] + list(entry1) + list(entry2)
+			joined_table.append(result_row)
 		
-		D_M.update(D_T)
-#create a dictonary now that contains each column as a list
-#now to avoid the conundrum of having the key column being in different columns in each file and not knowing where it will be, we can make a dictonary for each file and then just join both of those dictonaries
-#all the column names are different except the key, so we may not have to actually make 2 dictonaries just reorganize each list
-	
-#gets the positions of the key column in  each file, i is for the master file and j is for the file being merged with it
+		dict_T = table_to_dict(joined_table,0)
+		L.insert(0,dict_T)
 
-
-#need to somehow turn the rows into columns, there may be some matrix algebra i can do here, wait i think that there actually is. Thats it its the tranpose we want the tranpose of this 2D array now there may have been something in 212 like one of the matrix groups that allowed for this or can also check and see about 211 or you know can just google it. well lets think for doing the tranpose we are really just flipping everything along the diagonal so (a,a) -> (a,a) but (a,b) -> (b,a) awwww shite can just do that mother fucker, hells yeah we don figured it out now how does the actual indexing into lists of lists work and how can this actually be done. That my friend is a whole nother problem that i dont really know how to solve, so to google for that one.
-#Conversely to that whole great big paragraph on matrix transposes can just see what ryan did and do that but want to do this shit yourself, to prove you can.
-#need to create new file here and then delete at zero insert new file then remove at 1
-
-	print(D_M)
-	
-	#can just move the key column to the front here after all the recursion is done
+	print(L)
 	return file_list
+
+	
+def table_to_dict(T, key_column_index):
+	output_dict = {}
+	for row in T:
+		key = row[key_column_index]
+		rest_of_row = row[0:key_column_index] + row[key_column_index+1:]
+		if key in output_dict:
+			raise DuplicateKeyError(key)
+		output_dict[key] = rest_of_row
+	return output_dict
 	
 
 if __name__ == "__main__":
