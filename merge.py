@@ -6,7 +6,7 @@ def merge_tables(file_list, key_value):
 	columns = set()
 
 	for file in file_list:
-#this try and except might be fine but will just have to add the finding of the key_column index into here, then use bills table_to_dict and join grades program tp finish solving this, because it looks like if i try to continue doing this the way i currently am will basically have to redo a lot of stuff because it was lost when making it into a dict of lists
+
 		try:
 			
 			with open(file) as M:
@@ -55,8 +55,9 @@ def merge_tables(file_list, key_value):
 				break
 			i = i + 1
 		
-		L.append(table_to_dict(L_M,i))
+		L.append(table_to_dict(L_M,i,file))
 
+#got this from bill bird join_grades made a few modifications
 	for x in L:
 
 		dict1 = L[0]
@@ -92,20 +93,21 @@ def merge_tables(file_list, key_value):
 			result_row = [student_id] + list(entry1) + list(entry2)
 			joined_table.append(result_row)
 		
-		dict_T = table_to_dict(joined_table,0)
+		dict_T = table_to_dict(joined_table,0,file)
 		L.insert(0,dict_T)
-
+#need to just sort and print from here
 	print(L)
 	return file_list
 
-	
-def table_to_dict(T, key_column_index):
+#taken from bill bird from join_grades not changed at all
+def table_to_dict(T, key_column_index,file):
 	output_dict = {}
 	for row in T:
 		key = row[key_column_index]
 		rest_of_row = row[0:key_column_index] + row[key_column_index+1:]
 		if key in output_dict:
-			raise DuplicateKeyError(key)
+			print("duplicate key: %s in file: %s"%(key,file))
+			exit()
 		output_dict[key] = rest_of_row
 	return output_dict
 	
