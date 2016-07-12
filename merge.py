@@ -1,7 +1,7 @@
 import sys
 
 def merge_tables(file_list, key_value):
-	
+
 	L = []
 	columns = set()
 
@@ -40,7 +40,7 @@ def merge_tables(file_list, key_value):
 					else:
 						temp = read.split(',')
 						if len(temp) != length:
-							print("incorrect number of columns in: %"%(file))
+							print("incorrect number of columns in: %s"%(file))
 							exit()
 						temp = [read.strip() for read in temp]
 						L_M.append(temp)
@@ -56,8 +56,21 @@ def merge_tables(file_list, key_value):
 			i = i + 1
 		
 		L.append(table_to_dict(L_M,i,file))
-
-#got this from bill bird join_grades made a few modifications
+		
+#only one file case
+	if len(L) == 1:
+		D = L[0]
+		keys = list(D.keys())
+		keys.remove(key_value)
+		keys.sort()
+		print('%s'%(key_value), end=",")
+		print(",".join(D[key_value]))
+		for i in keys:
+			print("%s,"%(i) + ",".join(D[i]))
+		return
+		
+#multiple files case
+#got this from bill bird join_grades made a few modifications so that it worked with my code
 	for x in L:
 
 		dict1 = L[0]
@@ -95,9 +108,16 @@ def merge_tables(file_list, key_value):
 		
 		dict_T = table_to_dict(joined_table,0,file)
 		L.insert(0,dict_T)
-#need to just sort and print from here
-	print(L)
-	return file_list
+
+	D = L[0]
+	keys = list(D.keys())
+	keys.remove(key_value)
+	keys.sort()
+	print('%s'%(key_value), end=",")
+	print(",".join(D[key_value]))
+	for i in keys:
+		print("%s,"%(i) + ",".join(D[i]))
+	return
 
 #taken from bill bird from join_grades not changed at all
 def table_to_dict(T, key_column_index,file):
@@ -124,4 +144,4 @@ if __name__ == "__main__":
 	key_value = file_list[1].strip()
 	file_list = file_list[2:]
 
-	file_list = merge_tables(file_list,key_value)
+	merge_tables(file_list,key_value)
