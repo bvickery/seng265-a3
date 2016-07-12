@@ -25,7 +25,7 @@ def merge_tables(file_list, key_value):
 						break
 				
 				if flag:
-					sys.stderr.write("Erro: file %s contains no data"%(file))
+					sys.stderr.write("Error: file %s contains no data"%(file))
 					exit()
 		
 		
@@ -45,13 +45,22 @@ def merge_tables(file_list, key_value):
 						break
 
 				col1 = [line.strip() for line in col1]
-				#will need to ask how to actually get it so that name persists
-				#this also does not catch duplicate column names in the same file
-				name = []
-				if any(name in col1 for name in columns):
-				#duplicate column names
-					sys.stderr.write("file: %s contains a duplicate column name: %s"%(file,name))
-					exit()
+
+				#checks for duplicate column names in the current file
+				temp_set = set()
+				for header in col1:
+					if header in temp_set:
+						sys.stderr.write("file: %s contains a duplicate column name: %s"%(file,header))
+						exit()
+						
+					temp_set.add(header)
+				
+				#duplicate column names over different files
+				for name in col1:
+					if name in columns:
+						sys.stderr.write("file: %s contains a duplicate column name: %s"%(file,name))
+						exit()
+
 				for value in col1:
 					columns.add(value)
 					
@@ -151,8 +160,7 @@ def merge_tables(file_list, key_value):
 	print(",".join(D[key_value]))
 	for i in keys:
 		print("%s,"%(i) + ",".join(D[i]))
-		
-
+	
 	return
 
 #taken from bill bird from join_grades not changed at all
